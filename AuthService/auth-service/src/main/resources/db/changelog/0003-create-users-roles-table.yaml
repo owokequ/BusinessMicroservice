@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0003-create-users-roles-table
+      author: artem
+      changes:
+        - createTable:
+            tableName: users_roles
+            columns:
+              - column:
+                  name: user_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            constraintName: fk_users_roles_user
+            baseTableName: users_roles
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            constraintName: fk_users_roles_role
+            baseTableName: users_roles
+            baseColumnNames: role_id
+            referencedTableName: roles
+            referencedColumnNames: id

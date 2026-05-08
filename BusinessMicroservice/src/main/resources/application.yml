@@ -1,0 +1,19 @@
+server:
+  port: 8083
+
+spring:
+  application:
+    name: business-rest-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5434/business_db
+    username: artem
+    password: 12345678
+    hikari:
+      maximum-pool-size: 8
+  jpa:
+    hibernate:
+      ddl-auto: none
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml

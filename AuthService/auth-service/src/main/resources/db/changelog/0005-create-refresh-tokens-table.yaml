@@ -1,0 +1,43 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0005-create-refresh-tokens-table
+      author: artem
+      changes:
+        - createTable:
+            tableName: refresh_tokens
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(36)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: token
+                  type: TEXT
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: VARCHAR(36)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: expiry_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: CURRENT_TIMESTAMP
+
+        - addForeignKeyConstraint:
+            constraintName: fk_refresh_tokens_user
+            baseTableName: refresh_tokens
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id

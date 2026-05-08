@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-users
+      author: artem
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(36)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: email
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: wallet_id
+                  type: VARCHAR(36)
+                  constraints:
+                    unique: true
+                    foreignKeyName: fk_user_wallet
+                    references: wallets(id)

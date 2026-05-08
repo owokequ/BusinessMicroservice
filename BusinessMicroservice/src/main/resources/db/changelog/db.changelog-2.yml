@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-table-transactions
+      author: artem
+      changes:
+        - createTable:
+            tableName: transactions
+            columns:
+              - column:
+                  name: id
+                  type: VARCHAR(36)
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: transaction_amount
+                  type: DECIMAL(19, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: categories
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: VARCHAR(100)
+              - column:
+                  name: time_transaction
+                  type: TIMESTAMP
+              - column:
+                  name: wallet_id
+                  type: VARCHAR(36)
+                  constraints:
+                    foreignKeyName: fk_transaction_wallet
+                    references: wallets(id)
