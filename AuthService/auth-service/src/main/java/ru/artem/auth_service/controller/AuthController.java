@@ -1,5 +1,8 @@
 package ru.artem.auth_service.controller;
 
+import java.util.Arrays;
+
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import ru.artem.auth_service.dto.request.AuthRequest;
 import ru.artem.auth_service.dto.request.RefreshTokenRequest;
@@ -23,19 +29,49 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> authenticateUser(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<AuthResponse> authenticateUser(@RequestBody AuthRequest authRequest, HttpServletResponse response) {
+        
         AuthResponse tokens = authService.authenticate(authRequest.email(), authRequest.password());
+        
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", tokens.tokenRefresh())
+        .httpOnly(false)
+        .secure(false)
+        .maxAge(30*24*60*60)
+        .build();
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+
         return ResponseEntity.ok(tokens);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthAccessResponse> refreshToken(@RequestBody RefreshTokenRequest token) {
-        AuthAccessResponse accessToken = authService.refreshAccessToken(token);
+    public ResponseEntity<AuthAccessResponse> refreshToken(HttpServletRequest request) {
+
+        Cookie[] massCookies = request.getCookies();
+        if(massCookies == null){
+            throw new RuntimeException("cookie not found");
+        }
+
+        String refresh = Arrays.stream(massCookies)
+                        .filter(c -> "refresh_token".equals(c.getName()))
+                        .map(Cookie::getValue)
+                        .findFirst()
+                        .orElseThrow(() -> new RuntimeException("Refresh_token not found in cookie"));
+
+        AuthAccessResponse accessToken = authService.refreshAccessToken(
+            new RefreshTokenRequest(refresh)
+        );
         return ResponseEntity.ok(accessToken);
     }
 
     @DeleteMapping("/{id}/logout")
-    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable String id, HttpServletResponse response) {
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", "")
+        .httpOnly(false)
+        .secure(false)
+        .maxAge(0)
+        .build();
+        response.addHeader("Set-Cookie", refreshCookie.toString());
         authService.logout(id);
         return ResponseEntity.noContent().build();
     }

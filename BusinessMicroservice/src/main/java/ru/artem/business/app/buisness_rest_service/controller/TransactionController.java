@@ -40,6 +40,7 @@ public class TransactionController {
         transactionService.deleteTransaction(id);
         return ResponseEntity.noContent().build();
     }
+    
 
     @GetMapping()
     public ResponseEntity<List<TransactionResponseDto>> getAllTransaction() {
@@ -65,7 +66,6 @@ public class TransactionController {
     public ResponseEntity<TransactionTransferResponseDto> moneyTransfer(
             @RequestBody TransactionalCreateTransaferDto dto) {
         TransactionTransferResponseDto transfer = transactionService.moneyTransfer(dto);
-
         return ResponseEntity.ok().body(transfer);
     }
 }

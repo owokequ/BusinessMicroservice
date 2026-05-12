@@ -1,5 +1,6 @@
 package ru.artem.auth_service.controller;
 
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -7,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import ru.artem.auth_service.dto.request.UserRequest;
 import ru.artem.auth_service.dto.response.UserResponse;
@@ -33,8 +35,18 @@ public class BaseController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest userRequest) {
-        return ResponseEntity.ok(userService.registerUser(userRequest));
+    public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest userRequest, HttpServletResponse response) {
+        UserResponse newUser = userService.registerUser(userRequest);
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", newUser.refreshToken())
+        .httpOnly(false)
+        .secure(false)
+        .maxAge(30*24*60*60)
+        .build();
+
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+
+        return ResponseEntity.ok(newUser);
     }
 
 }
