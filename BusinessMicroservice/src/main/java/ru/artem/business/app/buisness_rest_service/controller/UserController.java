@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,24 +35,28 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<UserResponseDto>> getAllUser() {
         List<UserResponseDto> users = userService.getAllUser();
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable String id) {
         UserResponseDto user = userService.getUser(id);
         return ResponseEntity.ok(user);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("#id == authentication.principal")
     public ResponseEntity<UserResponseDto> updateUser(
             @PathVariable String id,
             @Valid @RequestBody UserCreateDto dto) {
@@ -60,6 +65,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/transactions")
+    @PreAuthorize("#id == authentication.principal")
     public ResponseEntity<UserAndTransactionsResponseDto> getAllUserTransactions(@PathVariable String id) {
         UserAndTransactionsResponseDto users = userService.getUserAndTransactions(id);
         return ResponseEntity.ok(users);

@@ -88,11 +88,20 @@
 		</dependency>
 
 		<!-- Тесты -->
+		<!-- Стартер тестов (JUnit 5, Mockito, AssertJ, Hamcrest, JSONassert) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Security тесты -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<plugins>

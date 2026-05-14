@@ -17,9 +17,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import ru.artem.auth_service.dto.request.AuthRequest;
 import ru.artem.auth_service.dto.request.RefreshTokenRequest;
+import ru.artem.auth_service.dto.request.UserRequest;
 import ru.artem.auth_service.dto.response.AuthAccessResponse;
 import ru.artem.auth_service.dto.response.AuthResponse;
+import ru.artem.auth_service.dto.response.UserResponse;
 import ru.artem.auth_service.service.AuthService;
+import ru.artem.auth_service.service.UserService;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,6 +30,7 @@ import ru.artem.auth_service.service.AuthService;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserService userService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> authenticateUser(@RequestBody AuthRequest authRequest, HttpServletResponse response) {
@@ -41,6 +45,21 @@ public class AuthController {
         response.addHeader("Set-Cookie", refreshCookie.toString());
 
         return ResponseEntity.ok(tokens);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest userRequest, HttpServletResponse response) {
+        UserResponse newUser = userService.registerUser(userRequest);
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", newUser.refreshToken())
+        .httpOnly(false)
+        .secure(false)
+        .maxAge(30*24*60*60)
+        .build();
+
+        response.addHeader("Set-Cookie", refreshCookie.toString());
+
+        return ResponseEntity.ok(newUser);
     }
 
     @PostMapping("/refresh")

@@ -23,6 +23,7 @@ import ru.artem.auth_service.dto.response.UserResponse;
 import ru.artem.auth_service.entity.RefreshToken;
 import ru.artem.auth_service.entity.Role;
 import ru.artem.auth_service.entity.User;
+import ru.artem.auth_service.exception.UserExistException;
 import ru.artem.auth_service.external.AuthHttpClient;
 import ru.artem.auth_service.repository.RefreshTokenRepository;
 import ru.artem.auth_service.repository.UserRepository;
@@ -56,7 +57,7 @@ public class UserService implements UserDetailsService {
 
         public UserResponse registerUser(UserRequest user) {
                 if (userRepository.existsByEmail(user.email())) {
-                        throw new RuntimeException("Пользователь с таким именем уже существует");
+                        throw new UserExistException("Пользователь с таким именем уже существует");
                 }
                 Role role = roleService.checkUserRole();
 
@@ -102,6 +103,6 @@ public class UserService implements UserDetailsService {
 
         public User getUserByUsername(String username) {
                 return userRepository.findByEmail(username)
-                                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+                                .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
         }
 }

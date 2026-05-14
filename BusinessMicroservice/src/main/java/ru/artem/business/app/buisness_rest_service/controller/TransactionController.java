@@ -3,6 +3,7 @@ package ru.artem.business.app.buisness_rest_service.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +37,7 @@ public class TransactionController {
     // }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<Void> deleteTransaction(@PathVariable String id) {
         transactionService.deleteTransaction(id);
         return ResponseEntity.noContent().build();
@@ -43,18 +45,21 @@ public class TransactionController {
     
 
     @GetMapping()
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<TransactionResponseDto>> getAllTransaction() {
         List<TransactionResponseDto> transaction = transactionService.getAllTransactions();
         return ResponseEntity.ok(transaction);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("#id == authentication.principal")
     public ResponseEntity<TransactionResponseDto> getTransaction(@PathVariable String id) {
         TransactionResponseDto transaction = transactionService.getTransaction(id);
         return ResponseEntity.ok(transaction);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("#id == authentication.principal")
     public ResponseEntity<TransactionResponseDto> updateTransaction(
             @PathVariable String id,
             @Valid @RequestBody TransactionUpdateDto dto) {
@@ -63,6 +68,7 @@ public class TransactionController {
     }
 
     @PostMapping("/transfer")
+    @PreAuthorize("#id == authentication.principal")
     public ResponseEntity<TransactionTransferResponseDto> moneyTransfer(
             @RequestBody TransactionalCreateTransaferDto dto) {
         TransactionTransferResponseDto transfer = transactionService.moneyTransfer(dto);

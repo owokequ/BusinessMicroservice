@@ -22,6 +22,13 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(UserExistException.class)
+    public ResponseEntity<ApiError> handleInvalidCredentials(UserExistException ex) {
+        ApiError error = new ApiError(HttpStatus.UNPROCESSABLE_CONTENT.value(), ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneralException(Exception ex) {
         ApiError error = new ApiError(
